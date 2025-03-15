@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Sigmar&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Joshua Chen's Portfolio - Software Developer specializing in JavaScript, Python, HTML, and CSS. View my projects and experience at UCSD ITS Department and San Diego Supercomputer Center."
+    />
+    <meta
+      name="keywords"
+      content="Joshua Chen, Software Developer, Web Development, JavaScript, Python, UCSD, Portfolio"
+    />
+    <meta name="author" content="Joshua Chen" />
+    <meta
+      property="og:title"
+      content="Joshua Chen's Portfolio - Software Developer"
+    />
+    <meta
+      property="og:description"
+      content="Portfolio showcasing my software development projects, internships, and other relevant experiences"
+    />
+    <meta property="og:image" content="headshot.png" />
+    <meta
+      property="og:url"
+      content="https://joshuachen-134b-hw2.netlify.app/"
+    />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Joshua Chen's Portfolio" />
+    <meta
+      name="twitter:description"
+      content="Software Developer with experience in JavaScript, Python, and web development"
+    />
+    <meta name="twitter:image" content="headshot.png" />
+    <title>Joshua Chen's Portfolio</title>
+
+    <style>
+      /* Form validation styles */
+      .required {
+        color: #e74c3c;
+        font-weight: bold;
+      }
+
+      .optional {
+        font-size: 0.8rem;
+        color: #666;
+        font-style: italic;
+        margin-left: 0.3rem;
+      }
+
+      .form-outputs {
+        position: relative;
+        margin-bottom: 1rem;
+        min-height: 30px;
+      }
+
+      .error-output {
+        color: #e74c3c;
+        font-size: 0.9rem;
+        transition: opacity 0.5s;
+      }
+
+      .info-output {
+        color: #2980b9;
+        font-size: 0.9rem;
+      }
+
+      input:not(:focus):invalid,
+      textarea:not(:focus):invalid {
+        border-color: #e74c3c;
+        background-color: #fff6f6;
+      }
+
+      input:focus:invalid,
+      textarea:focus:invalid {
+        box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+      }
+
+      input:valid,
+      textarea:valid {
+        border-color: #2ecc71;
+      }
+
+      input:focus:valid,
+      textarea:focus:valid {
+        box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+      }
+
+      input:placeholder-shown,
+      textarea:placeholder-shown {
+        border-color: #ccc;
+        background-color: #fff;
+      }
+
+      /* Enhanced validation styles */
+      .char-counter {
+        color: #2ecc71;
+        transition: color 0.3s;
+      }
+
+      /* Flash animation for invalid field input */
+      @keyframes fieldFlash {
+        0% {
+          background-color: #fff;
+        }
+        50% {
+          background-color: #ffecec;
+        }
+        100% {
+          background-color: #fff;
+        }
+      }
+
+      .field-flash {
+        animation: fieldFlash 0.3s;
+      }
+
+      /* Visual cue for fields close to character limit */
+      textarea.warning {
+        border-color: #f39c12;
+        background-color: #fffbf0;
+      }
+
+      textarea.danger {
+        border-color: #e74c3c;
+        background-color: #fff6f6;
+      }
+    </style>
+
+    <script>
+      // Web Component
+      (function () {
+        class HelloGreeting extends HTMLElement {
+          // Called when element is inserted into the document
+          connectedCallback() {
+            console.log("Hello World from Joshua!");
+          }
+        }
+        // Register the new element
+        customElements.define("hello-greeting", HelloGreeting);
+      })();
+
+      // Form validation script
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize form error tracking array
+        let form_errors = [];
+
+        const contactForm = document.getElementById("contact-form");
+        const nameInput = document.getElementById("name");
+        const emailInput = document.getElementById("email");
+        const commentsTextarea = document.getElementById("comments");
+        const errorOutput = document.querySelector(".error-output");
+        const infoOutput = document.querySelector(".info-output");
+
+        // Get or create the hidden form errors input
+        let formErrorsInput = document.getElementById("form-errors");
+        if (!formErrorsInput) {
+          // Create it if it doesn't exist
+          formErrorsInput = document.createElement("input");
+          formErrorsInput.type = "hidden";
+          formErrorsInput.id = "form-errors";
+          formErrorsInput.name = "form-errors";
+          formErrorsInput.value = JSON.stringify(form_errors);
+          contactForm.appendChild(formErrorsInput);
+        }
+
+        // Character counter for comments
+        const maxCommentLength =
+          parseInt(commentsTextarea.getAttribute("maxlength")) || 500;
+        const minCommentLength =
+          parseInt(commentsTextarea.getAttribute("minlength")) || 10;
+
+        // Create character counter element
+        const charCounter = document.createElement("div");
+        charCounter.className = "char-counter";
+        charCounter.style.textAlign = "right";
+        charCounter.style.fontSize = "0.8rem";
+        charCounter.style.marginTop = "5px";
+        charCounter.style.transition = "color 0.3s";
+        commentsTextarea.parentNode.appendChild(charCounter);
+
+        // Update character counter
+        function updateCharCounter() {
+          const remaining = maxCommentLength - commentsTextarea.value.length;
+          charCounter.textContent = `${commentsTextarea.value.length}/${maxCommentLength} characters`;
+
+          // Change style based on remaining characters
+          if (remaining <= 20) {
+            charCounter.style.color = "#e74c3c"; // Red when close to limit
+            charCounter.style.fontWeight = "bold";
+            commentsTextarea.classList.add("danger");
+            commentsTextarea.classList.remove("warning");
+          } else if (remaining <= 50) {
+            charCounter.style.color = "#f39c12"; // Orange when getting closer
+            charCounter.style.fontWeight = "bold";
+            commentsTextarea.classList.add("warning");
+            commentsTextarea.classList.remove("danger");
+          } else {
+            charCounter.style.color = "#2ecc71"; // Green when plenty of space
+            charCounter.style.fontWeight = "normal";
+            commentsTextarea.classList.remove("warning", "danger");
+          }
+        }
+
+        // Initialize counter
+        updateCharCounter();
+
+        // Field masking for name input
+        nameInput.addEventListener("input", function (e) {
+          const pattern = new RegExp(nameInput.getAttribute("pattern"));
+          const lastChar = e.data; // The most recently entered character
+
+          // If there's a new character and it doesn't match the pattern
+          if (lastChar && !pattern.test(lastChar)) {
+            // Remove the invalid character
+            this.value = this.value.slice(0, -1);
+
+            // Flash the field
+            this.style.backgroundColor = "#ffecec";
+            setTimeout(() => {
+              this.style.backgroundColor = "";
+            }, 300);
+
+            // Show error message
+            displayFlashMessage(
+              `Invalid character: "${lastChar}" is not allowed in the name field.`
+            );
+
+            // Track the error
+            trackFormError(
+              "name",
+              "invalid_character",
+              `Invalid character: "${lastChar}" entered`
+            );
+          }
+        });
+
+        // Field masking for email input
+        emailInput.addEventListener("input", function (e) {
+          // Allow only valid email characters
+          const emailPattern = /^[a-zA-Z0-9._%+-@]*$/;
+          const lastChar = e.data;
+
+          if (lastChar && !emailPattern.test(lastChar)) {
+            this.value = this.value.slice(0, -1);
+
+            this.style.backgroundColor = "#ffecec";
+            setTimeout(() => {
+              this.style.backgroundColor = "";
+            }, 300);
+
+            displayFlashMessage(
+              `Invalid character: "${lastChar}" is not allowed in email addresses.`
+            );
+
+            trackFormError(
+              "email",
+              "invalid_character",
+              `Invalid character: "${lastChar}" entered`
+            );
+          }
+        });
+
+        // Character counting for comments
+        commentsTextarea.addEventListener("input", function (e) {
+          updateCharCounter();
+
+          // Check if trying to exceed max length (shouldn't happen with HTML5 validation, but as a backup)
+          if (this.value.length > maxCommentLength) {
+            this.value = this.value.slice(0, maxCommentLength);
+            displayFlashMessage(
+              `Maximum character limit (${maxCommentLength}) reached!`
+            );
+            trackFormError(
+              "comments",
+              "max_length_exceeded",
+              "Attempted to exceed maximum character limit"
+            );
+          }
+        });
+
+        // Display flash message that fades out
+        function displayFlashMessage(message) {
+          errorOutput.textContent = message;
+          errorOutput.style.opacity = 1;
+
+          // Clear any existing timeout
+          if (errorOutput.fadeTimeout) {
+            clearTimeout(errorOutput.fadeTimeout);
+          }
+
+          // Fade out after 3 seconds
+          errorOutput.fadeTimeout = setTimeout(() => {
+            errorOutput.style.opacity = 0;
+
+            // After fade completes, reset the message
+            setTimeout(() => {
+              errorOutput.textContent = "";
+              errorOutput.style.opacity = 1;
+            }, 500);
+          }, 3000);
+        }
+
+        // Track form errors
+        function trackFormError(field, errorType, errorMessage) {
+          form_errors.push({
+            field: field,
+            type: errorType,
+            message: errorMessage,
+            timestamp: new Date().toISOString(),
+          });
+
+          // Update the hidden input with the JSON string of errors
+          formErrorsInput.value = JSON.stringify(form_errors);
+
+          console.log("Updated form_errors:", form_errors);
+          console.log("Hidden input value:", formErrorsInput.value);
+        }
+
+        // Check field validity using Constraint Validation API
+        function validateField(field) {
+          const fieldName = field.getAttribute("name");
+          const isValid = field.checkValidity();
+
+          if (!isValid) {
+            let customMessage = "";
+
+            if (field.validity.valueMissing) {
+              customMessage = `${
+                fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
+              } is required.`;
+            } else if (field.validity.patternMismatch) {
+              customMessage = `Please enter a valid ${fieldName} format.`;
+            } else if (field.validity.tooShort) {
+              customMessage = `${
+                fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
+              } must be at least ${field.minLength} characters.`;
+            } else if (field.validity.tooLong) {
+              customMessage = `${
+                fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
+              } cannot exceed ${field.maxLength} characters.`;
+            } else if (field.validity.typeMismatch) {
+              customMessage = `Please enter a valid ${fieldName} format.`;
+            }
+
+            // Set custom validation message
+            field.setCustomValidity(customMessage);
+
+            // Track the error
+            trackFormError(
+              fieldName,
+              Object.keys(field.validity).find(
+                (key) => field.validity[key] === true
+              ),
+              customMessage
+            );
+
+            return false;
+          } else {
+            field.setCustomValidity("");
+            return true;
+          }
+        }
+
+        // Validate all fields on input
+        const formFields = [nameInput, emailInput, commentsTextarea];
+        formFields.forEach((field) => {
+          field.addEventListener("input", function () {
+            validateField(this);
+          });
+
+          field.addEventListener("blur", function () {
+            if (!validateField(this)) {
+              displayFlashMessage(this.validationMessage);
+            }
+          });
+        });
+        //     // Validate all fields
+        // Form submission handler
+        contactForm.addEventListener("submit", function (e) {
+          let isFormValid = true;
+
+          // Validate all fields
+          formFields.forEach((field) => {
+            if (!validateField(field)) {
+              isFormValid = false;
+              displayFlashMessage(field.validationMessage);
+            }
+          });
+
+          if (!isFormValid) {
+            // Only prevent form submission if validation fails
+            return;
+          } else {
+            const processedErrors = form_errors.map((error) => {
+              return {
+                field: error.field,
+                type: error.type,
+                message: error.message,
+                // Format the timestamp to be more readable
+                timestamp: new Date(error.timestamp).toLocaleString(),
+              };
+            });
+
+            // Group errors by field for better organization
+            const errorsByField = {};
+            processedErrors.forEach((error) => {
+              if (!errorsByField[error.field]) {
+                errorsByField[error.field] = [];
+              }
+              errorsByField[error.field].push(error);
+            });
+
+            // Create a summary of the errors
+            const errorSummary = {
+              total_errors: processedErrors.length,
+              errors_by_field: errorsByField,
+              submission_time: new Date().toISOString(),
+            };
+
+            // Update the hidden input with processed error data
+            formErrorsInput.value = JSON.stringify(errorSummary);
+
+            console.log("Form submitting with processed errors:", errorSummary);
+            setTimeout(() => {
+              this.submit(); // Programmatically submit the form
+            }, 50);
+          }
+        });
+      });
+    </script>
+
+    <style>
+      /* Theme toggle styles */
+      #theme-toggle-container {
+        display: flex;
+        align-items: center;
+        margin-right: 1rem;
+      }
+
+      #theme-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s;
+        color: var(--text-color);
+      }
+
+      #theme-toggle:hover {
+        background-color: var(--hover-color);
+      }
+
+      #theme-toggle svg {
+        width: 24px;
+        height: 24px;
+        fill: currentColor;
+      }
+
+      .sun-icon {
+        display: none;
+      }
+
+      .moon-icon {
+        display: block;
+      }
+
+      /* Show sun icon when in dark mode */
+      .dark-mode .sun-icon {
+        display: block;
+      }
+
+      .dark-mode .moon-icon {
+        display: none;
+      }
+
+      /* Dark mode CSS variables */
+      .dark-mode {
+        --background-color: #121212;
+        --text-color: #e0e0e0;
+        --surface-color: #1e1e1e;
+        --hover-color: rgba(255, 255, 255, 0.1);
+        --border-color: #333333;
+      }
+
+      .dark-mode .project-card:hover {
+        background-color: #2a2a2a; /* Darker background for cards on hover in dark mode */
+      }
+
+      .dark-mode .project-card:hover .project-description {
+        color: #ffffff; /* Ensure description text is white when hovering cards in dark mode */
+      }
+
+      .dark-mode .external-link-icon {
+        filter: brightness(0) invert(1); /* This turns the SVG white */
+      }
+
+      /* Hide the toggle button when JavaScript is disabled */
+      .no-js #theme-toggle-container {
+        display: none;
+      }
+
+      /* Add style for noscript message */
+      .theme-toggle-fallback {
+        font-size: 0.8rem;
+        color: var(--text-color);
+        opacity: 0.8;
+        margin-left: 1rem;
+      }
+    </style>
+  </head>
+
+  <body id="top">
+    <script>
+      // Mark body as having JavaScript
+      document.body.classList.remove("no-js");
+
+      // Function to toggle dark mode
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        const isDarkMode = document.body.classList.contains("dark-mode");
+
+        // Save user preference to localStorage
+        localStorage.setItem("darkMode", isDarkMode);
+
+        // Update button aria-label for accessibility
+        const toggleButton = document.getElementById("theme-toggle");
+        toggleButton.setAttribute(
+          "aria-label",
+          isDarkMode ? "Toggle light mode" : "Toggle dark mode"
+        );
+      }
+
+      // Check for saved user preference when the page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initially add no-js class to body
+        document.body.classList.add("no-js");
+
+        // Remove no-js class since JS is working
+        document.body.classList.remove("no-js");
+
+        // Check for saved preference in localStorage
+        const savedDarkMode = localStorage.getItem("darkMode");
+
+        // Apply dark mode if saved preference exists and is 'true'
+        if (savedDarkMode === "true") {
+          document.body.classList.add("dark-mode");
+        }
+
+        // Add event listener to the toggle button
+        const toggleButton = document.getElementById("theme-toggle");
+        if (toggleButton) {
+          toggleButton.addEventListener("click", toggleDarkMode);
+        }
+      });
+    </script>
+    <noscript>
+      <style>
+        #theme-toggle-container {
+          display: none !important;
+        }
+      </style>
+      <div class="theme-toggle-fallback">
+        Theme toggle requires JavaScript to function.
+      </div>
+    </noscript>
+    <header id="header1">
+      <h1>
+        <a href="#first-section"><i>Personal Portfolio</i></a>
+      </h1>
+      <nav>
+        <a
+          href="Joshua-Chen-Resume.pdf"
+          class="resume-link"
+          target="_blank"
+          rel="noopener noreferrer"
+          ><b>Resume</b></a
+        >
+        <a href="#about"><b>About</b></a>
+        <a href="#projects"><b>Projects</b></a>
+        <a href="#contact"><b>Connect</b></a>
+      </nav>
+      <div id="theme-toggle-container">
+        <button id="theme-toggle" aria-label="Toggle dark mode">
+          <svg
+            class="sun-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+          >
+            <path
+              d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"
+            />
+          </svg>
+          <svg
+            class="moon-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+          >
+            <path
+              d="M10 7a7 7 0 0 0 12 4.9v.1c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2h.1A6.979 6.979 0 0 0 10 7zm-6 5a8 8 0 0 0 15.062 3.762A9 9 0 0 1 8.238 4.938 7.999 7.999 0 0 0 4 12z"
+            />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="first-section">
+        <div id="bio">
+          <div id="introduction">
+            <h2 class="my-name-is">Hi, my name is...</h2>
+            <p id="name">Joshua Chen</p>
+          </div>
+          <div class="bio-text">
+            <h2 class="my-name-is">A little more about me...</h2>
+            <p>
+              I'm currently a 3rd-year Computer Science major at UCSD. My
+              coursework has provided me with a strong foundation in
+              programming, data structures, algorithms, and software
+              development.
+            </p>
+            <p>
+              Through personal and group projects, I've honed my technical
+              skills by diving deep into programming and working with various
+              libraries and frameworks. These projects have sharpened my ability
+              to write maintainable code and utilize OOP languages like Java,
+              JavaScript, and Python.
+            </p>
+          </div>
+          <div class="bio-image">
+            <picture>
+              <source srcset="headshot.JPG" type="pics/image/png" />
+              <img
+                src="pics/headshot.JPG"
+                alt="Joshua Chen"
+                width="210"
+                height="250"
+              />
+            </picture>
+          </div>
+        </div>
+      </section>
+
+      <section id="about">
+        <h2>What I like to do...</h2>
+        <div class="bio-container">
+          <div class="bio-hobbies">
+            <div class="hobby-grid">
+              <div>
+                <h5>🏀 Sports & Fitness</h5>
+                <ul>
+                  <li>Basketball</li>
+                  <li>Volleyball</li>
+                  <li>Ping Pong</li>
+                  <li>Gym</li>
+                  <li>Salsa</li>
+                </ul>
+              </div>
+              <div>
+                <h5>🎵 Music & Creativity</h5>
+                <ul>
+                  <li>
+                    Listening to Music (rnb, classical, 90s, cantopop, indie,
+                    rap, pop)
+                  </li>
+                  <li>Guitar</li>
+                  <li>Piano</li>
+                  <li>Thrifting</li>
+                </ul>
+              </div>
+              <div>
+                <h5>🌅 Leisure & Games</h5>
+                <ul>
+                  <li>Cooking</li>
+                  <li>Sitcoms</li>
+                  <li>Many Movies and TV Shows</li>
+                  <li>Rummikub</li>
+                  <li>Occasional Video Games</li>
+                  <li>Watching Sunsets at Gliderport</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects" class="projects">
+        <h2>Projects / Experiences</h2>
+        <div class="projects-grid">
+          <article class="project-card clickable">
+            <a
+              href="https://support.ucsd.edu/services"
+              class="project-card-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="image-container">
+                <img
+                  src="pics/ITS.JPG"
+                  alt="UCSD ITS Department workspace"
+                  class="project-image"
+                  loading="lazy"
+                />
+              </div>
+              <div class="project-content">
+                <div class="project-header">
+                  <h3 class="project-title">UCSD ITS Department</h3>
+                </div>
+                <p class="project-description">
+                  At UCSD's ITS Department, I develop and optimize workflows,
+                  forms, and records in ServiceNow using JavaScript to enhance
+                  accessibility for over 600,000 users. I conduct comprehensive
+                  QA testing to ensure the reliability and maintenance of
+                  campus-wide ticketing systems. Additionally, I publish
+                  detailed documentation in Confluence, providing clear
+                  guidelines and procedures to support department operations.
+                </p>
+              </div>
+              <img
+                src="new-window-svgrepo-com.svg"
+                alt="Opens in new window"
+                class="external-link-icon"
+              />
+            </a>
+          </article>
+
+          <article class="project-card clickable">
+            <a
+              href="https://dashboard.cloud.sdsc.edu/dashboard/auth/login/?next=/dashboard/"
+              class="project-card-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="image-container">
+                <img
+                  src="pics/SDSC.JPG"
+                  alt="SDSC NextJS Development"
+                  class="project-image"
+                  loading="lazy"
+                />
+              </div>
+              <div class="project-content">
+                <div class="project-header">
+                  <h3 class="project-title">SDSC Next.js Migration</h3>
+                </div>
+                <p class="project-description">
+                  At SDSC, I helped with the migration of an OpenStack platform
+                  currently serving over 450 clients to Next.js and Go. I
+                  actively participated in scrum meetings twice a week, where I
+                  contributed to planning and executing debugging, programming,
+                  and optimization tasks within our sprints
+                </p>
+              </div>
+              <img
+                src="new-window-svgrepo-com.svg"
+                alt="Opens in new window"
+                class="external-link-icon"
+              />
+            </a>
+          </article>
+
+          <article class="project-card clickable">
+            <a
+              href="https://webclicker-plusplus.vercel.app/"
+              class="project-card-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="image-container">
+                <img
+                  src="pics/webclicker.JPG"
+                  alt="CSES WebClicker Interface"
+                  class="project-image"
+                  loading="lazy"
+                />
+              </div>
+              <div class="project-content">
+                <div class="project-header">
+                  <h3 class="project-title">CSES WebClicker</h3>
+                </div>
+                <p class="project-description">
+                  Developing an interactive web-based clicker system for
+                  classroom engagement. Implemented real-time response tracking
+                  and analytics dashboard.
+                </p>
+              </div>
+              <img
+                src="new-window-svgrepo-com.svg"
+                alt="Opens in new window"
+                class="external-link-icon"
+              />
+            </a>
+          </article>
+
+          <article class="project-card">
+            <a
+              href="https://cse110-sp24-group8.github.io/cse110-sp24-group8/"
+              class="project-card-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="image-container">
+                <img
+                  src="pics/Journal.JPG"
+                  alt="LeJournal Application"
+                  class="project-image"
+                  loading="lazy"
+                />
+              </div>
+              <div class="project-content">
+                <div class="project-header">
+                  <h3 class="project-title">LeJournal</h3>
+                </div>
+                <p class="project-description">
+                  Developed a web app journal with a 9-person team using vanilla
+                  HTML/CSS/JS. Led the CI/CD pipeline implementation with GitHub
+                  Actions, integrating 35+ tests, linting, and code quality
+                  checks to reduce deployment time by 40%. Utilized industry
+                  practices such as ADRs, issue boards, and refined user stories
+                  to ensure smooth project delivery.
+                </p>
+              </div>
+              <img
+                src="new-window-svgrepo-com.svg"
+                alt="Opens in new window"
+                class="external-link-icon"
+              />
+            </a>
+          </article>
+
+          <article class="project-card">
+            <div class="image-container">
+              <img
+                src="pics/USCD_Rating_App.JPG"
+                alt="SDSC Internship App"
+                class="project-image"
+                loading="lazy"
+              />
+            </div>
+            <div class="project-content">
+              <div class="project-header">
+                <h3 class="project-title">SDSC Internship App</h3>
+              </div>
+              <p class="project-description">
+                In my 2022 Summer Developer Internship at SDSC, I played a key
+                role in creating a UCSD Rating App using TypeScript in React
+                Native, developing a user-friendly interface for uploading,
+                verifying, and reviewing locations. We addressed the campus map
+                inaccuracies by enabling users to contribute and review study
+                spots and dorms. We also implemented the Google Maps API for the
+                Home Page map and established a cloud server on an
+                SDSC-optimized database management for user request handling.
+                Participation in Scrum meetings and Sprint Presentations
+                deepened my insights into app development, teamwork, and
+                technology integration.
+              </p>
+            </div>
+          </article>
+
+          <article class="project-card">
+            <a
+              href="https://github.com/acmucsd-projects/sp23-hack-team-1"
+              class="project-card-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="image-container">
+                <img
+                  src="pics/codenames.JPG"
+                  alt="Codenames Game"
+                  class="project-image"
+                  loading="lazy"
+                />
+              </div>
+              <div class="project-content">
+                <div class="project-header">
+                  <h3 class="project-title">Codenames</h3>
+                </div>
+                <p class="project-description">
+                  Developed a full-stack MERN multiplayer app based on
+                  Codenames, featuring dynamic player views, real-time
+                  web-socket updates, and custom lobbies. Server is down so the
+                  link takes you to the Github instead.
+                </p>
+              </div>
+              <img
+                src="new-window-svgrepo-com.svg"
+                alt="Opens in new window"
+                class="external-link-icon"
+              />
+            </a>
+          </article>
+
+          <article class="project-card">
+            <a
+              href="https://jochshen.github.io/MultiPlayerArithmetic/"
+              class="project-card-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="image-container">
+                <img
+                  src="pics/arithemetic.JPG"
+                  alt="Math Arithmetic Game"
+                  class="project-image"
+                  loading="lazy"
+                />
+              </div>
+              <div class="project-content">
+                <div class="project-header">
+                  <h3 class="project-title">Math Arithmetic</h3>
+                </div>
+                <p class="project-description">
+                  Designed an educational game for practicing arithmetic skills.
+                  Features include difficulty levels, timed challenges, and
+                  progress tracking.
+                </p>
+              </div>
+              <img
+                src="new-window-svgrepo-com.svg"
+                alt="Opens in new window"
+                class="external-link-icon"
+              />
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <!-- Contact Form Section -->
+      <section id="contact-form-section">
+        <h2>Get In Touch</h2>
+        <form
+          action="https://httpbin.org/post"
+          method="post"
+          id="contact-form"
+          class="contact-form"
+          novalidate
+        >
+          <div class="form-group">
+            <label for="name"
+              >Name <span class="optional">(optional)</span>:</label
+            >
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Your name"
+              pattern="[A-Za-z\s\-']+"
+              title="Please enter a valid name with letters, spaces, hyphens, or apostrophes only"
+              minlength="2"
+              maxlength="50"
+              style="font-size: small"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email <span class="required">*</span>:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="your.email@example.com"
+              required
+              aria-required="true"
+              title="Please enter a valid email address"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="comments"
+              >Comments <span class="required">*</span>:</label
+            >
+            <textarea
+              id="comments"
+              name="comments"
+              rows="5"
+              placeholder="Your message here..."
+              required
+              aria-required="true"
+              minlength="10"
+              maxlength="500"
+              title="Please enter between 10 and 500 characters"
+            ></textarea>
+          </div>
+
+          <input type="hidden" name="possible_bot" value="true" />
+          <input type="hidden" id="form-errors" name="form-errors" value="[]" />
+
+          <div class="form-outputs">
+            <output
+              name="errorOutput"
+              class="error-output"
+              for="name email comments"
+            ></output>
+            <output
+              name="infoOutput"
+              class="info-output"
+              for="name email comments"
+              style="color: red"
+              >Fields marked with * are required.</output
+            >
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="submit-button">Send Message</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer id="contact">
+      <address>
+        Let's connect!
+        <br />
+        <span class="social-links">
+          <a
+            href="mailto:joshuachen0724@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              x="0px"
+              y="0px"
+              width="100"
+              height="100"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M 4 4 C 2.895 4 2 4.895 2 6 L 2 18 C 2 19.105 2.895 20 4 20 L 20 20 C 21.105 20 22 19.105 22 18 L 22 6 C 22 4.895 21.105 4 20 4 L 4 4 z M 5.5976562 6 L 18.402344 6 L 12 10 L 5.5976562 6 z M 5 8.6269531 L 12 13 L 19 8.6269531 L 19 18 L 5 18 L 5 8.6269531 z"
+              ></path>
+            </svg>
+            Email
+          </a>
+          <a
+            href="https://www.linkedin.com/in/joshuachen4/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              x="0px"
+              y="0px"
+              width="100"
+              height="100"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M19,3H5C3.895,3,3,3.895,3,5v14c0,1.105,0.895,2,2,2h14c1.105,0,2-0.895,2-2V5C21,3.895,20.105,3,19,3z M9,17H6.477v-7H9 V17z M7.694,8.717c-0.771,0-1.286-0.514-1.286-1.2s0.514-1.2,1.371-1.2c0.771,0,1.286,0.514,1.286,1.2S8.551,8.717,7.694,8.717z M18,17h-2.442v-3.826c0-1.058-0.651-1.302-0.895-1.302s-1.058,0.163-1.058,1.302c0,0.163,0,3.826,0,3.826h-2.523v-7h2.523v0.977 C13.93,10.407,14.581,10,15.802,10C17.023,10,18,10.977,18,13.174V17z"
+              ></path>
+            </svg>
+            LinkedIn
+          </a>
+          <a
+            href="https://github.com/jochshen"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              x="0px"
+              y="0px"
+              width="100"
+              height="100"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M 12 2 C 6.476563 2 2 6.476563 2 12 C 2 17.523438 6.476563 22 12 22 C 17.523438 22 22 17.523438 22 12 C 22 6.476563 17.523438 2 12 2 Z M 12 4 C 16.410156 4 20 7.589844 20 12 C 20 12.46875 19.953125 12.929688 19.875 13.375 C 19.628906 13.320313 19.265625 13.253906 18.84375 13.25 C 18.53125 13.246094 18.140625 13.296875 17.8125 13.34375 C 17.925781 12.996094 18 12.613281 18 12.21875 C 18 11.257813 17.53125 10.363281 16.78125 9.625 C 16.988281 8.855469 17.191406 7.535156 16.65625 7 C 15.074219 7 14.199219 8.128906 14.15625 8.1875 C 13.667969 8.070313 13.164063 8 12.625 8 C 11.933594 8 11.273438 8.125 10.65625 8.3125 L 10.84375 8.15625 C 10.84375 8.15625 9.964844 6.9375 8.34375 6.9375 C 7.777344 7.507813 8.035156 8.953125 8.25 9.6875 C 7.484375 10.417969 7 11.28125 7 12.21875 C 7 12.546875 7.078125 12.859375 7.15625 13.15625 C 6.878906 13.125 5.878906 13.03125 5.46875 13.03125 C 5.105469 13.03125 4.542969 13.117188 4.09375 13.21875 C 4.03125 12.820313 4 12.414063 4 12 C 4 7.589844 7.589844 4 12 4 Z M 5.46875 13.28125 C 5.863281 13.28125 7.0625 13.421875 7.21875 13.4375 C 7.238281 13.492188 7.257813 13.542969 7.28125 13.59375 C 6.851563 13.554688 6.019531 13.496094 5.46875 13.5625 C 5.101563 13.605469 4.632813 13.738281 4.21875 13.84375 C 4.1875 13.71875 4.148438 13.597656 4.125 13.46875 C 4.5625 13.375 5.136719 13.28125 5.46875 13.28125 Z M 18.84375 13.5 C 19.242188 13.503906 19.605469 13.570313 19.84375 13.625 C 19.832031 13.691406 19.796875 13.746094 19.78125 13.8125 C 19.527344 13.753906 19.109375 13.667969 18.625 13.65625 C 18.390625 13.652344 18.015625 13.664063 17.6875 13.6875 C 17.703125 13.65625 17.707031 13.625 17.71875 13.59375 C 18.058594 13.546875 18.492188 13.496094 18.84375 13.5 Z M 6.09375 13.78125 C 6.65625 13.785156 7.183594 13.824219 7.40625 13.84375 C 7.929688 14.820313 8.988281 15.542969 10.625 15.84375 C 10.222656 16.066406 9.863281 16.378906 9.59375 16.75 C 9.359375 16.769531 9.113281 16.78125 8.875 16.78125 C 8.179688 16.78125 7.746094 16.160156 7.375 15.625 C 7 15.089844 6.539063 15.03125 6.28125 15 C 6.019531 14.96875 5.929688 15.117188 6.0625 15.21875 C 6.824219 15.804688 7.097656 16.5 7.40625 17.125 C 7.683594 17.6875 8.265625 18 8.90625 18 L 9.03125 18 C 9.011719 18.109375 9 18.210938 9 18.3125 L 9 19.40625 C 6.691406 18.472656 4.933594 16.5 4.28125 14.0625 C 4.691406 13.960938 5.152344 13.855469 5.5 13.8125 C 5.660156 13.792969 5.863281 13.777344 6.09375 13.78125 Z M 18.625 13.90625 C 19.074219 13.917969 19.472656 14.003906 19.71875 14.0625 C 19.167969 16.132813 17.808594 17.855469 16 18.90625 L 16 18.3125 C 16 17.460938 15.328125 16.367188 14.375 15.84375 C 15.957031 15.554688 16.988281 14.863281 17.53125 13.9375 C 17.910156 13.910156 18.355469 13.898438 18.625 13.90625 Z M 12.5 18 C 12.773438 18 13 18.226563 13 18.5 L 13 19.9375 C 12.671875 19.980469 12.339844 20 12 20 L 12 18.5 C 12 18.226563 12.226563 18 12.5 18 Z M 10.5 19 C 10.773438 19 11 19.226563 11 19.5 L 11 19.9375 C 10.664063 19.894531 10.324219 19.832031 10 19.75 L 10 19.5 C 10 19.226563 10.226563 19 10.5 19 Z M 14.5 19 C 14.742188 19 14.953125 19.175781 15 19.40625 C 14.675781 19.539063 14.34375 19.660156 14 19.75 L 14 19.5 C 14 19.226563 14.226563 19 14.5 19 Z"
+              ></path>
+            </svg>
+            Github
+          </a>
+        </span>
+      </address>
+      <p>Last updated: <ins>March 2025</ins></p>
+    </footer>
+  </body>
+</html>
