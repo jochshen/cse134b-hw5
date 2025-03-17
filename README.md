@@ -1,6 +1,5 @@
-# cse134B-hw4
+# cse134B-hw5
 
-#Part 3 Changes
+## Part 3 Changes  
 
-1. I deleted the `Get in Touch` Contact Form since it was required for HW 4. However, I thought that it wouldn't necessarily be the best fit for my website. I think if a user really wanted to get in contact, they would press the email icon. I didn't want a chunk of the page dedicated for that, so I deleted all HTML, CSS, JS related to that 
-2. I added a section of technologies/languages I worked with. I think that while it was good to showcase the projects I did and provide links to some of them, as a recruiter, knowing what technologies this developer is experienced with would be helpful when it comes to recruiting. If my experiences aligns with the tech stack needs of the program, then having these icons would be helpful visuals. 
+In this update, I removed the **"Get in Touch"** contact form since it was originally required for HW 4 but didn’t fit well with my website's design. Instead, users can contact me through the email icon, making the form unnecessary. I also added a section highlighting the **technologies and languages** I’ve worked with, as this helps recruiters quickly assess my experience and how it aligns with their tech stack needs. I thought it'd be cool to add more visual features to my website so this section consists of cool SVGs I found of icons of these technologies and languages. Additionally, I fixed a navigation issue by adding `scroll-margin-top` to ensure section titles are visible when using the navbar. Before when you pressed on the nav, it would correctly go to the right section in the website but would omit the title since the sticky navbar was covering it. Finally, I introduced `enhanced.js` to enable **smooth scrolling**, making navigation feel more polished and user-friendly. Additionally, when users first log onto the website, there is a smooth animation fading in. 
