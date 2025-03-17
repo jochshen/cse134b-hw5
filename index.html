@@ -140,236 +140,6 @@
         }
         customElements.define("hello-greeting", HelloGreeting);
       })();
-      document.addEventListener("DOMContentLoaded", function () {
-        // Initialize form error tracking array
-        let form_errors = [];
-
-        const contactForm = document.getElementById("contact-form");
-        const nameInput = document.getElementById("name");
-        const emailInput = document.getElementById("email");
-        const commentsTextarea = document.getElementById("comments");
-        const errorOutput = document.querySelector(".error-output");
-        const infoOutput = document.querySelector(".info-output");
-        let formErrorsInput = document.getElementById("form-errors");
-        if (!formErrorsInput) {
-          formErrorsInput = document.createElement("input");
-          formErrorsInput.type = "hidden";
-          formErrorsInput.id = "form-errors";
-          formErrorsInput.name = "form-errors";
-          formErrorsInput.value = JSON.stringify(form_errors);
-          contactForm.appendChild(formErrorsInput);
-        }
-        const maxCommentLength =
-          parseInt(commentsTextarea.getAttribute("maxlength")) || 500;
-        const minCommentLength =
-          parseInt(commentsTextarea.getAttribute("minlength")) || 10;
-        const charCounter = document.createElement("div");
-        charCounter.className = "char-counter";
-        charCounter.style.textAlign = "right";
-        charCounter.style.fontSize = "0.8rem";
-        charCounter.style.marginTop = "5px";
-        charCounter.style.transition = "color 0.3s";
-        commentsTextarea.parentNode.appendChild(charCounter);
-
-        function updateCharCounter() {
-          const remaining = maxCommentLength - commentsTextarea.value.length;
-          charCounter.textContent = `${commentsTextarea.value.length}/${maxCommentLength} characters`;
-          if (remaining <= 20) {
-            charCounter.style.color = "#e74c3c"; // Red when close to limit
-            charCounter.style.fontWeight = "bold";
-            commentsTextarea.classList.add("danger");
-            commentsTextarea.classList.remove("warning");
-          } else if (remaining <= 50) {
-            charCounter.style.color = "#f39c12"; // Orange when getting closer
-            charCounter.style.fontWeight = "bold";
-            commentsTextarea.classList.add("warning");
-            commentsTextarea.classList.remove("danger");
-          } else {
-            charCounter.style.color = "#2ecc71"; // Green when plenty of space
-            charCounter.style.fontWeight = "normal";
-            commentsTextarea.classList.remove("warning", "danger");
-          }
-        }
-        updateCharCounter();
-        nameInput.addEventListener("input", function (e) {
-          const pattern = new RegExp(nameInput.getAttribute("pattern"));
-          const lastChar = e.data; // The most recently entered character
-          if (lastChar && !pattern.test(lastChar)) {
-            this.value = this.value.slice(0, -1);
-            this.style.backgroundColor = "#ffecec";
-            setTimeout(() => {
-              this.style.backgroundColor = "";
-            }, 300);
-            displayFlashMessage(
-              `Invalid character: "${lastChar}" is not allowed in the name field.`
-            );
-            trackFormError(
-              "name",
-              "invalid_character",
-              `Invalid character: "${lastChar}" entered`
-            );
-          }
-        });
-        emailInput.addEventListener("input", function (e) {
-          const emailPattern = /^[a-zA-Z0-9._%+-@]*$/;
-          const lastChar = e.data;
-
-          if (lastChar && !emailPattern.test(lastChar)) {
-            this.value = this.value.slice(0, -1);
-
-            this.style.backgroundColor = "#ffecec";
-            setTimeout(() => {
-              this.style.backgroundColor = "";
-            }, 300);
-
-            displayFlashMessage(
-              `Invalid character: "${lastChar}" is not allowed in email addresses.`
-            );
-
-            trackFormError(
-              "email",
-              "invalid_character",
-              `Invalid character: "${lastChar}" entered`
-            );
-          }
-        });
-        commentsTextarea.addEventListener("input", function (e) {
-          updateCharCounter();
-          if (this.value.length > maxCommentLength) {
-            this.value = this.value.slice(0, maxCommentLength);
-            displayFlashMessage(
-              `Maximum character limit (${maxCommentLength}) reached!`
-            );
-            trackFormError(
-              "comments",
-              "max_length_exceeded",
-              "Attempted to exceed maximum character limit"
-            );
-          }
-        });
-        function displayFlashMessage(message) {
-          errorOutput.textContent = message;
-          errorOutput.style.opacity = 1;
-          if (errorOutput.fadeTimeout) {
-            clearTimeout(errorOutput.fadeTimeout);
-          }
-          errorOutput.fadeTimeout = setTimeout(() => {
-            errorOutput.style.opacity = 0;
-            setTimeout(() => {
-              errorOutput.textContent = "";
-              errorOutput.style.opacity = 1;
-            }, 500);
-          }, 3000);
-        }
-
-        function trackFormError(field, errorType, errorMessage) {
-          form_errors.push({
-            field: field,
-            type: errorType,
-            message: errorMessage,
-            timestamp: new Date().toISOString(),
-          });
-          formErrorsInput.value = JSON.stringify(form_errors);
-
-          console.log("Updated form_errors:", form_errors);
-          console.log("Hidden input value:", formErrorsInput.value);
-        }
-        function validateField(field) {
-          const fieldName = field.getAttribute("name");
-          const isValid = field.checkValidity();
-
-          if (!isValid) {
-            let customMessage = "";
-
-            if (field.validity.valueMissing) {
-              customMessage = `${
-                fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
-              } is required.`;
-            } else if (field.validity.patternMismatch) {
-              customMessage = `Please enter a valid ${fieldName} format.`;
-            } else if (field.validity.tooShort) {
-              customMessage = `${
-                fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
-              } must be at least ${field.minLength} characters.`;
-            } else if (field.validity.tooLong) {
-              customMessage = `${
-                fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
-              } cannot exceed ${field.maxLength} characters.`;
-            } else if (field.validity.typeMismatch) {
-              customMessage = `Please enter a valid ${fieldName} format.`;
-            }
-            field.setCustomValidity(customMessage);
-            trackFormError(
-              fieldName,
-              Object.keys(field.validity).find(
-                (key) => field.validity[key] === true
-              ),
-              customMessage
-            );
-
-            return false;
-          } else {
-            field.setCustomValidity("");
-            return true;
-          }
-        }
-
-        // Validate all fields on input
-        const formFields = [nameInput, emailInput, commentsTextarea];
-        formFields.forEach((field) => {
-          field.addEventListener("input", function () {
-            validateField(this);
-          });
-
-          field.addEventListener("blur", function () {
-            if (!validateField(this)) {
-              displayFlashMessage(this.validationMessage);
-            }
-          });
-        });
-        contactForm.addEventListener("submit", function (e) {
-          let isFormValid = true;
-          formFields.forEach((field) => {
-            if (!validateField(field)) {
-              isFormValid = false;
-              displayFlashMessage(field.validationMessage);
-            }
-          });
-
-          if (!isFormValid) {
-            return;
-          } else {
-            const processedErrors = form_errors.map((error) => {
-              return {
-                field: error.field,
-                type: error.type,
-                message: error.message,
-                // Format the timestamp to be more readable
-                timestamp: new Date(error.timestamp).toLocaleString(),
-              };
-            });
-
-            const errorsByField = {};
-            processedErrors.forEach((error) => {
-              if (!errorsByField[error.field]) {
-                errorsByField[error.field] = [];
-              }
-              errorsByField[error.field].push(error);
-            });
-            const errorSummary = {
-              total_errors: processedErrors.length,
-              errors_by_field: errorsByField,
-              submission_time: new Date().toISOString(),
-            };
-            formErrorsInput.value = JSON.stringify(errorSummary);
-
-            console.log("Form submitting with processed errors:", errorSummary);
-            setTimeout(() => {
-              this.submit(); // Programmatically submit the form
-            }, 50);
-          }
-        });
-      });
     </script>
 
     <style>
@@ -615,177 +385,176 @@
         <div class="projects-grid"></div>
       </section>
       <script src="project-card.js"></script>
-    </section>
 
-        <section id="tech" class="tech">
-          <h2>Technologies, Frameworks, and Languages I Use</h2>
-          <div class="tech-grid">
-            <!-- Frontend -->
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg"
-                alt="HTML5"
-              />
-              <span class="tech-name">HTML5</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg"
-                alt="CSS3"
-              />
-              <span class="tech-name">CSS3</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg"
-                alt="JavaScript"
-              />
-              <span class="tech-name">JavaScript</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
-                alt="React"
-              />
-              <span class="tech-name">React</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg"
-                alt="TypeScript"
-              />
-              <span class="tech-name">TypeScript</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg"
-                alt="Next.js"
-              />
-              <span class="tech-name">Next.js</span>
-            </div>
-
-            <!-- Backend -->
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg"
-                alt="Java"
-              />
-              <span class="tech-name">Java</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
-                alt="Python"
-              />
-              <span class="tech-name">Python</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg"
-                alt="Go"
-              />
-              <span class="tech-name">Go</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg"
-                alt="Jira"
-              />
-              <span class="tech-name">MySQL</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg"
-                alt="PostgreSQL"
-              />
-              <span class="tech-name">PostgreSQL</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/prisma/prisma-original.svg"
-                alt="Prisma"
-              />
-              <span class="tech-name">Prisma</span>
-            </div>
-
-            <!-- DevOps/Tools -->
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"
-                alt="Docker"
-              />
-              <span class="tech-name">Docker</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
-                alt="Kubernetes"
-              />
-              <span class="tech-name">Kubernetes</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/googlecloud/googlecloud-original.svg"
-                alt="Google Cloud"
-              />
-              <span class="tech-name">Google Cloud</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg"
-                alt="Git"
-              />
-              <span class="tech-name">Git</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jira/jira-original.svg"
-                alt="Jira"
-              />
-              <span class="tech-name">Jira</span>
-            </div>
-
-            <div class="tech-item">
-              <img
-                class="tech-icon"
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/confluence/confluence-original.svg"
-                alt="Jira"
-              />
-              <span class="tech-name">Confluence</span>
-            </div>
+      <section id="tech" class="tech">
+        <h2>Technologies, Frameworks, and Languages I Use</h2>
+        <div class="tech-grid">
+          <!-- Frontend -->
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg"
+              alt="HTML5"
+            />
+            <span class="tech-name">HTML5</span>
           </div>
-        </section>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg"
+              alt="CSS3"
+            />
+            <span class="tech-name">CSS3</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg"
+              alt="JavaScript"
+            />
+            <span class="tech-name">JavaScript</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
+              alt="React"
+            />
+            <span class="tech-name">React</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg"
+              alt="TypeScript"
+            />
+            <span class="tech-name">TypeScript</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg"
+              alt="Next.js"
+            />
+            <span class="tech-name">Next.js</span>
+          </div>
+
+          <!-- Backend -->
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg"
+              alt="Java"
+            />
+            <span class="tech-name">Java</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
+              alt="Python"
+            />
+            <span class="tech-name">Python</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg"
+              alt="Go"
+            />
+            <span class="tech-name">Go</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg"
+              alt="Jira"
+            />
+            <span class="tech-name">MySQL</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg"
+              alt="PostgreSQL"
+            />
+            <span class="tech-name">PostgreSQL</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/prisma/prisma-original.svg"
+              alt="Prisma"
+            />
+            <span class="tech-name">Prisma</span>
+          </div>
+
+          <!-- DevOps/Tools -->
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"
+              alt="Docker"
+            />
+            <span class="tech-name">Docker</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
+              alt="Kubernetes"
+            />
+            <span class="tech-name">Kubernetes</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/googlecloud/googlecloud-original.svg"
+              alt="Google Cloud"
+            />
+            <span class="tech-name">Google Cloud</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg"
+              alt="Git"
+            />
+            <span class="tech-name">Git</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jira/jira-original.svg"
+              alt="Jira"
+            />
+            <span class="tech-name">Jira</span>
+          </div>
+
+          <div class="tech-item">
+            <img
+              class="tech-icon"
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/confluence/confluence-original.svg"
+              alt="Jira"
+            />
+            <span class="tech-name">Confluence</span>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer id="contact">
@@ -854,5 +623,7 @@
       </address>
       <p>Last updated: <ins>March 2025</ins></p>
     </footer>
+
+    <script src="enhanced.js"></script>
   </body>
 </html>
