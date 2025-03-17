@@ -101,14 +101,10 @@
         border-color: #ccc;
         background-color: #fff;
       }
-
-      /* Enhanced validation styles */
       .char-counter {
         color: #2ecc71;
         transition: color 0.3s;
       }
-
-      /* Flash animation for invalid field input */
       @keyframes fieldFlash {
         0% {
           background-color: #fff;
@@ -124,8 +120,6 @@
       .field-flash {
         animation: fieldFlash 0.3s;
       }
-
-      /* Visual cue for fields close to character limit */
       textarea.warning {
         border-color: #f39c12;
         background-color: #fffbf0;
@@ -138,19 +132,14 @@
     </style>
 
     <script>
-      // Web Component
       (function () {
         class HelloGreeting extends HTMLElement {
-          // Called when element is inserted into the document
           connectedCallback() {
             console.log("Hello World from Joshua!");
           }
         }
-        // Register the new element
         customElements.define("hello-greeting", HelloGreeting);
       })();
-
-      // Form validation script
       document.addEventListener("DOMContentLoaded", function () {
         // Initialize form error tracking array
         let form_errors = [];
@@ -161,11 +150,8 @@
         const commentsTextarea = document.getElementById("comments");
         const errorOutput = document.querySelector(".error-output");
         const infoOutput = document.querySelector(".info-output");
-
-        // Get or create the hidden form errors input
         let formErrorsInput = document.getElementById("form-errors");
         if (!formErrorsInput) {
-          // Create it if it doesn't exist
           formErrorsInput = document.createElement("input");
           formErrorsInput.type = "hidden";
           formErrorsInput.id = "form-errors";
@@ -173,14 +159,10 @@
           formErrorsInput.value = JSON.stringify(form_errors);
           contactForm.appendChild(formErrorsInput);
         }
-
-        // Character counter for comments
         const maxCommentLength =
           parseInt(commentsTextarea.getAttribute("maxlength")) || 500;
         const minCommentLength =
           parseInt(commentsTextarea.getAttribute("minlength")) || 10;
-
-        // Create character counter element
         const charCounter = document.createElement("div");
         charCounter.className = "char-counter";
         charCounter.style.textAlign = "right";
@@ -189,12 +171,9 @@
         charCounter.style.transition = "color 0.3s";
         commentsTextarea.parentNode.appendChild(charCounter);
 
-        // Update character counter
         function updateCharCounter() {
           const remaining = maxCommentLength - commentsTextarea.value.length;
           charCounter.textContent = `${commentsTextarea.value.length}/${maxCommentLength} characters`;
-
-          // Change style based on remaining characters
           if (remaining <= 20) {
             charCounter.style.color = "#e74c3c"; // Red when close to limit
             charCounter.style.fontWeight = "bold";
@@ -211,32 +190,19 @@
             commentsTextarea.classList.remove("warning", "danger");
           }
         }
-
-        // Initialize counter
         updateCharCounter();
-
-        // Field masking for name input
         nameInput.addEventListener("input", function (e) {
           const pattern = new RegExp(nameInput.getAttribute("pattern"));
           const lastChar = e.data; // The most recently entered character
-
-          // If there's a new character and it doesn't match the pattern
           if (lastChar && !pattern.test(lastChar)) {
-            // Remove the invalid character
             this.value = this.value.slice(0, -1);
-
-            // Flash the field
             this.style.backgroundColor = "#ffecec";
             setTimeout(() => {
               this.style.backgroundColor = "";
             }, 300);
-
-            // Show error message
             displayFlashMessage(
               `Invalid character: "${lastChar}" is not allowed in the name field.`
             );
-
-            // Track the error
             trackFormError(
               "name",
               "invalid_character",
@@ -244,10 +210,7 @@
             );
           }
         });
-
-        // Field masking for email input
         emailInput.addEventListener("input", function (e) {
-          // Allow only valid email characters
           const emailPattern = /^[a-zA-Z0-9._%+-@]*$/;
           const lastChar = e.data;
 
@@ -270,12 +233,8 @@
             );
           }
         });
-
-        // Character counting for comments
         commentsTextarea.addEventListener("input", function (e) {
           updateCharCounter();
-
-          // Check if trying to exceed max length (shouldn't happen with HTML5 validation, but as a backup)
           if (this.value.length > maxCommentLength) {
             this.value = this.value.slice(0, maxCommentLength);
             displayFlashMessage(
@@ -288,22 +247,14 @@
             );
           }
         });
-
-        // Display flash message that fades out
         function displayFlashMessage(message) {
           errorOutput.textContent = message;
           errorOutput.style.opacity = 1;
-
-          // Clear any existing timeout
           if (errorOutput.fadeTimeout) {
             clearTimeout(errorOutput.fadeTimeout);
           }
-
-          // Fade out after 3 seconds
           errorOutput.fadeTimeout = setTimeout(() => {
             errorOutput.style.opacity = 0;
-
-            // After fade completes, reset the message
             setTimeout(() => {
               errorOutput.textContent = "";
               errorOutput.style.opacity = 1;
@@ -311,7 +262,6 @@
           }, 3000);
         }
 
-        // Track form errors
         function trackFormError(field, errorType, errorMessage) {
           form_errors.push({
             field: field,
@@ -319,15 +269,11 @@
             message: errorMessage,
             timestamp: new Date().toISOString(),
           });
-
-          // Update the hidden input with the JSON string of errors
           formErrorsInput.value = JSON.stringify(form_errors);
 
           console.log("Updated form_errors:", form_errors);
           console.log("Hidden input value:", formErrorsInput.value);
         }
-
-        // Check field validity using Constraint Validation API
         function validateField(field) {
           const fieldName = field.getAttribute("name");
           const isValid = field.checkValidity();
@@ -352,11 +298,7 @@
             } else if (field.validity.typeMismatch) {
               customMessage = `Please enter a valid ${fieldName} format.`;
             }
-
-            // Set custom validation message
             field.setCustomValidity(customMessage);
-
-            // Track the error
             trackFormError(
               fieldName,
               Object.keys(field.validity).find(
@@ -385,12 +327,8 @@
             }
           });
         });
-        //     // Validate all fields
-        // Form submission handler
         contactForm.addEventListener("submit", function (e) {
           let isFormValid = true;
-
-          // Validate all fields
           formFields.forEach((field) => {
             if (!validateField(field)) {
               isFormValid = false;
@@ -399,7 +337,6 @@
           });
 
           if (!isFormValid) {
-            // Only prevent form submission if validation fails
             return;
           } else {
             const processedErrors = form_errors.map((error) => {
@@ -412,7 +349,6 @@
               };
             });
 
-            // Group errors by field for better organization
             const errorsByField = {};
             processedErrors.forEach((error) => {
               if (!errorsByField[error.field]) {
@@ -420,15 +356,11 @@
               }
               errorsByField[error.field].push(error);
             });
-
-            // Create a summary of the errors
             const errorSummary = {
               total_errors: processedErrors.length,
               errors_by_field: errorsByField,
               submission_time: new Date().toISOString(),
             };
-
-            // Update the hidden input with processed error data
             formErrorsInput.value = JSON.stringify(errorSummary);
 
             console.log("Form submitting with processed errors:", errorSummary);
@@ -441,7 +373,6 @@
     </script>
 
     <style>
-      /* Theme toggle styles */
       #theme-toggle-container {
         display: flex;
         align-items: center;
@@ -480,8 +411,6 @@
       .moon-icon {
         display: block;
       }
-
-      /* Show sun icon when in dark mode */
       .dark-mode .sun-icon {
         display: block;
       }
@@ -489,8 +418,6 @@
       .dark-mode .moon-icon {
         display: none;
       }
-
-      /* Dark mode CSS variables */
       .dark-mode {
         --background-color: #121212;
         --text-color: #e0e0e0;
@@ -500,23 +427,19 @@
       }
 
       .dark-mode .project-card:hover {
-        background-color: #2a2a2a; /* Darker background for cards on hover in dark mode */
+        background-color: #2a2a2a;
       }
 
       .dark-mode .project-card:hover .project-description {
-        color: #ffffff; /* Ensure description text is white when hovering cards in dark mode */
+        color: #ffffff;
       }
 
       .dark-mode .external-link-icon {
-        filter: brightness(0) invert(1); /* This turns the SVG white */
+        filter: brightness(0) invert(1);
       }
-
-      /* Hide the toggle button when JavaScript is disabled */
       .no-js #theme-toggle-container {
         display: none;
       }
-
-      /* Add style for noscript message */
       .theme-toggle-fallback {
         font-size: 0.8rem;
         color: var(--text-color);
@@ -528,42 +451,24 @@
 
   <body id="top">
     <script>
-      // Mark body as having JavaScript
       document.body.classList.remove("no-js");
-
-      // Function to toggle dark mode
       function toggleDarkMode() {
         document.body.classList.toggle("dark-mode");
         const isDarkMode = document.body.classList.contains("dark-mode");
-
-        // Save user preference to localStorage
         localStorage.setItem("darkMode", isDarkMode);
-
-        // Update button aria-label for accessibility
         const toggleButton = document.getElementById("theme-toggle");
         toggleButton.setAttribute(
           "aria-label",
           isDarkMode ? "Toggle light mode" : "Toggle dark mode"
         );
       }
-
-      // Check for saved user preference when the page loads
       document.addEventListener("DOMContentLoaded", function () {
-        // Initially add no-js class to body
         document.body.classList.add("no-js");
-
-        // Remove no-js class since JS is working
         document.body.classList.remove("no-js");
-
-        // Check for saved preference in localStorage
         const savedDarkMode = localStorage.getItem("darkMode");
-
-        // Apply dark mode if saved preference exists and is 'true'
         if (savedDarkMode === "true") {
           document.body.classList.add("dark-mode");
         }
-
-        // Add event listener to the toggle button
         const toggleButton = document.getElementById("theme-toggle");
         if (toggleButton) {
           toggleButton.addEventListener("click", toggleDarkMode);
@@ -595,6 +500,7 @@
         <a href="#about"><b>About</b></a>
         <a href="#projects"><b>Projects</b></a>
         <a href="#contact"><b>Connect</b></a>
+        <a href="#tech"><b>Technologies</b></a>
       </nav>
       <div id="theme-toggle-container">
         <button id="theme-toggle" aria-label="Toggle dark mode">
@@ -706,89 +612,180 @@
 
       <section id="projects" class="projects">
         <h2>Projects / Experiences</h2>
-        <div class="projects-grid">
-        </div>
+        <div class="projects-grid"></div>
       </section>
       <script src="project-card.js"></script>
 
-      <section id="contact-form-section">
-        <h2>Get In Touch</h2>
-        <form
-          action="https://httpbin.org/post"
-          method="post"
-          id="contact-form"
-          class="contact-form"
-          novalidate
-        >
-          <div class="form-group">
-            <label for="name"
-              >Name <span class="optional">(optional)</span>:</label
-            >
-            <input
-              type="text"
-              id="name"
-              name="name"
-              placeholder="Your name"
-              pattern="[A-Za-z\s\-']+"
-              title="Please enter a valid name with letters, spaces, hyphens, or apostrophes only"
-              minlength="2"
-              maxlength="50"
-              style="font-size: small"
-            />
-          </div>
+      <section id="tech" class="tech">
+        <section id="tech" class="tech">
+          <h2>Technologies, Frameworks, and Languages I Use</h2>
+          <div class="tech-grid">
+            <!-- Frontend -->
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg"
+                alt="HTML5"
+              />
+              <span class="tech-name">HTML5</span>
+            </div>
 
-          <div class="form-group">
-            <label for="email">Email <span class="required">*</span>:</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="your.email@example.com"
-              required
-              aria-required="true"
-              title="Please enter a valid email address"
-            />
-          </div>
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg"
+                alt="CSS3"
+              />
+              <span class="tech-name">CSS3</span>
+            </div>
 
-          <div class="form-group">
-            <label for="comments"
-              >Comments <span class="required">*</span>:</label
-            >
-            <textarea
-              id="comments"
-              name="comments"
-              rows="5"
-              placeholder="Your message here..."
-              required
-              aria-required="true"
-              minlength="10"
-              maxlength="500"
-              title="Please enter between 10 and 500 characters"
-            ></textarea>
-          </div>
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg"
+                alt="JavaScript"
+              />
+              <span class="tech-name">JavaScript</span>
+            </div>
 
-          <input type="hidden" name="possible_bot" value="true" />
-          <input type="hidden" id="form-errors" name="form-errors" value="[]" />
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
+                alt="React"
+              />
+              <span class="tech-name">React</span>
+            </div>
 
-          <div class="form-outputs">
-            <output
-              name="errorOutput"
-              class="error-output"
-              for="name email comments"
-            ></output>
-            <output
-              name="infoOutput"
-              class="info-output"
-              for="name email comments"
-              style="color: red"
-              >Fields marked with * are required.</output
-            >
-          </div>
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg"
+                alt="TypeScript"
+              />
+              <span class="tech-name">TypeScript</span>
+            </div>
 
-          <div class="form-group">
-            <button type="submit" class="submit-button">Send Message</button>
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg"
+                alt="Next.js"
+              />
+              <span class="tech-name">Next.js</span>
+            </div>
+
+            <!-- Backend -->
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg"
+                alt="Java"
+              />
+              <span class="tech-name">Java</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
+                alt="Python"
+              />
+              <span class="tech-name">Python</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg"
+                alt="Go"
+              />
+              <span class="tech-name">Go</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg"
+                alt="Jira"
+              />
+              <span class="tech-name">MySQL</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg"
+                alt="PostgreSQL"
+              />
+              <span class="tech-name">PostgreSQL</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/prisma/prisma-original.svg"
+                alt="Prisma"
+              />
+              <span class="tech-name">Prisma</span>
+            </div>
+
+            <!-- DevOps/Tools -->
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"
+                alt="Docker"
+              />
+              <span class="tech-name">Docker</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
+                alt="Kubernetes"
+              />
+              <span class="tech-name">Kubernetes</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/googlecloud/googlecloud-original.svg"
+                alt="Google Cloud"
+              />
+              <span class="tech-name">Google Cloud</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg"
+                alt="Git"
+              />
+              <span class="tech-name">Git</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jira/jira-original.svg"
+                alt="Jira"
+              />
+              <span class="tech-name">Jira</span>
+            </div>
+
+            <div class="tech-item">
+              <img
+                class="tech-icon"
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/confluence/confluence-original.svg"
+                alt="Jira"
+              />
+              <span class="tech-name">Confluence</span>
+            </div>
           </div>
-        </form>
+        </section>
       </section>
     </main>
 

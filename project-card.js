@@ -1,7 +1,7 @@
 // project-index.js
 
-const JSONBIN_API_URL = 'https://api.jsonbin.io/v3/b/67d76ad98a456b7966772bda'; // Replace with your JSONBin ID
-const JSONBIN_API_KEY = '$$2a$10$5HBAXnxLxXwi7WK5LTsEsunyIKoakcSjFLaszlRi4U4uokqsPwMcu'; // Replace with your JSONBin API key
+const JSONBIN_API_URL = 'https://api.jsonbin.io/v3/b/67d76ad98a456b7966772bda'; 
+const JSONBIN_API_KEY = '$$2a$10$5HBAXnxLxXwi7WK5LTsEsunyIKoakcSjFLaszlRi4U4uokqsPwMcu';
 const LOCAL_STORAGE_KEY = 'projectsData';
 const REMOTE_STORAGE_KEY = 'remoteProjectsData';
 let projectsGrid;
