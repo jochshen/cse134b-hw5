@@ -52,9 +52,9 @@ section {
   padding: 2rem 0;
 }
 
-#projects {
+/* #projects {
   scroll-margin-top: 100px;
-}
+} */
 
 #about {
   scroll-margin-top: 100px;
@@ -147,9 +147,9 @@ section {
     scroll-margin-top: 200px;
   }
 
-  #projects {
+  /* #projects {
     scroll-margin-top: 150px;
-  }
+  } */
 
   #about {
     scroll-margin-top: 200px;
@@ -290,8 +290,8 @@ section {
   }
 }
 
-.projects {
-  max-width: 1400px; /* Increased to accommodate 3 cards per row */
+/* .projects {
+  max-width: 1400px; 
   margin: 0 auto;
   padding: 2rem 1rem;
 }
@@ -305,7 +305,6 @@ section {
 
 .projects-grid {
   display: grid;
-  /* Three columns on large screens, two on medium, one on small */
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
   gap: 2rem;
 }
@@ -315,7 +314,7 @@ section {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 100%; /* Ensure all cards are same height */
+  height: 100%; 
   display: flex;
   flex-direction: column;
 }
@@ -326,7 +325,7 @@ section {
 
 .image-container {
   width: 100%;
-  height: 250px; /* Slightly reduced height to fit more cards */
+  height: 250px;
   overflow: hidden;
 }
 
@@ -340,7 +339,7 @@ section {
 
 .project-content {
   padding: 1.5rem;
-  flex-grow: 1; /* Allow content to fill remaining space */
+  flex-grow: 1; 
   display: flex;
   flex-direction: column;
 }
@@ -378,7 +377,7 @@ section {
   font-size: 1.25rem;
   font-weight: bold;
   margin: 0;
-  color: var(--primary-color); /* This will make all titles green */
+  color: var(--primary-color); 
 }
 
 .project-card-link {
@@ -387,7 +386,7 @@ section {
   display: flex;
   flex-direction: column;
   height: 100%;
-}
+} */
 
 /* .external-link-icon {
   position: absolute;
@@ -410,23 +409,23 @@ section {
   fill: var(--primary-color); /* Use your color variable */
 }
 
-/* Responsive adjustments */
-@media screen and (max-width: 1200px) {
-  .projects-grid {
+/* Responsive adjustments
+/* @media screen and (max-width: 1200px) { */
+  /* .projects-grid {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
   }
-}
+} */
 
 @media screen and (max-width: 768px) {
-  .projects-grid {
+  /* .projects-grid {
     grid-template-columns: 1fr;
-  }
+  } */ */
 
   .image-container {
     height: 200px;
   }
 
-  .project-content {
+  /* .project-content {
     padding: 1rem;
   }
 
@@ -435,16 +434,16 @@ section {
     font-weight: bold;
     margin: 0;
     color: var(--primary-color); /* This will make all titles green */
-  }
+  /* } */
 
-  .project-description {
+  /* .project-description {
     font-size: 0.9rem;
     color: var(--text-color, #333);
   }
 
   .project-content {
     position: relative;
-  }
+  }  */
   .external-link-icon {
     opacity: 1; /* Make the icon visible */
     visibility: visible; /* Ensure the icon is visible */
@@ -532,12 +531,12 @@ ins {
     justify-content: center;
   }
 }
-
+/* 
 .projects-grid:has(.project-card:hover) .project-card:not(:hover) {
   opacity: 0.7;
   transform: scale(0.98);
   transition: all 0.3s ease;
-}
+} */
 
 .bio-hobbies {
   & h4 {
@@ -644,5 +643,70 @@ ins {
   .contact-form {
     max-width: 100%;
     padding: 1.5rem;
+  }
+}
+
+/* CSS Variables for the project section */
+:root {
+  --card-bg-color: #ffffff;
+  --card-text-color: #333333;
+  --card-primary-color: #3498db;
+  --card-secondary-color: #2ecc71;
+  --card-accent-color: #e74c3c;
+  --card-hover-color: rgba(76, 175, 80, 0.1);
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --card-border-radius: 8px;
+  --card-transition: all 0.3s ease;
+}
+
+/* Dark mode variables */
+.dark-mode {
+  --card-bg-color: #1e1e1e;
+  --card-text-color: #e0e0e0;
+  --card-primary-color: #64b5f6;
+  --card-secondary-color: #4ecca3;
+  --card-accent-color: #ff6b6b;
+  --card-hover-color: rgba(100, 181, 246, 0.1);
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Projects grid layout */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Animation for projects section */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+project-card {
+  animation: fadeIn 0.5s ease forwards;
+  animation-delay: calc(var(--animation-order, 0) * 0.1s);
+  opacity: 0;
+}
+
+/* Hover effect for project cards container */
+.projects-grid:hover project-card:not(:hover) {
+  opacity: 0.7;
+  transform: scale(0.98);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1200px) {
+  .projects-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }

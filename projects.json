@@ -1,0 +1,20 @@
+[
+    {
+      "id": "codenames",
+      "title": "Codenames",
+      "description": "Developed a full-stack MERN multiplayer app based on Codenames, featuring dynamic player views, real-time web-socket updates, and custom lobbies. Server is down so the link takes you to the Github instead.",
+      "image": "pics/codenames.JPG",
+      "alt": "Codenames Game",
+      "link": "https://github.com/acmucsd-projects/sp23-hack-team-1",
+      "linkText": "View Project"
+    },
+    {
+      "id": "math-arithmetic",
+      "title": "Math Arithmetic",
+      "description": "Designed an educational game for practicing arithmetic skills. Features include difficulty levels, timed challenges, and progress tracking.",
+      "image": "pics/arithemetic.JPG",
+      "alt": "Math Arithmetic Game",
+      "link": "https://jochshen.github.io/MultiPlayerArithmetic/",
+      "linkText": "View Project"
+    }
+  ]
