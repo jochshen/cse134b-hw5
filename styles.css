@@ -46,7 +46,8 @@ a {
 }
 
 a:hover {
-  background-color: var(--hover-color, rgba(76, 175, 80, 0.1));}
+  background-color: var(--hover-color, rgba(76, 175, 80, 0.1));
+}
 
 section {
   padding: 2rem 0;
@@ -60,7 +61,7 @@ section {
   scroll-margin-top: 100px;
 }
 
-#about h2{
+#about h2 {
   font-size: 2rem;
 }
 #contact {
@@ -290,114 +291,6 @@ section {
   }
 }
 
-/* .projects {
-  max-width: 1400px; 
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-.projects h2 {
-  text-align: center;
-  margin-bottom: 2rem;
-  font-size: 2rem;
-  font-weight: bold;
-}
-
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-  gap: 2rem;
-}
-
-.project-card {
-  background: var(--surface-color, #ffffff);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 100%; 
-  display: flex;
-  flex-direction: column;
-}
-
-.project-card:hover {
-  background-color: var(--hover-color, rgba(76, 175, 80, 0.1));  transform: translateY(-2px);
-}
-
-.image-container {
-  width: 100%;
-  height: 250px;
-  overflow: hidden;
-}
-
-.project-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  background-color: #f0f0f0;
-}
-
-.project-content {
-  padding: 1.5rem;
-  flex-grow: 1; 
-  display: flex;
-  flex-direction: column;
-}
-
-.project-header {
-  margin-bottom: 1rem;
-}
-
-.project-title {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin: 0;
-}
-
-.project-description {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: var(--text-color, #333);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.project-card.clickable {
-  cursor: pointer;
-}
-
-.project-card.clickable:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.project-title {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin: 0;
-  color: var(--primary-color); 
-}
-
-.project-card-link {
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-} */
-
-/* .external-link-icon {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  width: 20px;
-  height: 20px;
-  opacity: 1;
-  visibility: visible;
-} */
-
 .external-link-icon {
   opacity: 1; /* Make the icon visible */
   visibility: visible; /* Ensure the icon is visible */
@@ -409,41 +302,11 @@ section {
   fill: var(--primary-color); /* Use your color variable */
 }
 
-/* Responsive adjustments
-/* @media screen and (max-width: 1200px) { */
-  /* .projects-grid {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
-  }
-} */
-
 @media screen and (max-width: 768px) {
-  /* .projects-grid {
-    grid-template-columns: 1fr;
-  } */ */
-
   .image-container {
     height: 200px;
   }
 
-  /* .project-content {
-    padding: 1rem;
-  }
-
-  .project-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    margin: 0;
-    color: var(--primary-color); /* This will make all titles green */
-  /* } */
-
-  /* .project-description {
-    font-size: 0.9rem;
-    color: var(--text-color, #333);
-  }
-
-  .project-content {
-    position: relative;
-  }  */
   .external-link-icon {
     opacity: 1; /* Make the icon visible */
     visibility: visible; /* Ensure the icon is visible */
@@ -496,7 +359,8 @@ address {
 }
 
 .social-links a:hover {
-  background-color: var(--hover-color, rgba(76, 175, 80, 0.1));  transform: translateY(-2px);
+  background-color: var(--hover-color, rgba(76, 175, 80, 0.1));
+  transform: translateY(-2px);
 }
 
 .social-links a:hover svg {
@@ -681,8 +545,14 @@ ins {
 
 /* Animation for projects section */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 project-card {
@@ -761,7 +631,7 @@ project-card {
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     gap: 2rem;
   }
-  
+
   .tech-icon {
     width: 70px;
     height: 70px;
@@ -773,9 +643,15 @@ project-card {
     grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
     gap: 1.5rem;
   }
-  
+
   .tech-icon {
     width: 60px;
     height: 60px;
   }
+}
+
+/* Dark mode override for tech section */
+.dark-mode .tech h2,
+.dark-mode .tech-name {
+  color: #333333 !important; /* Ensure it stays black even in dark mode */
 }
